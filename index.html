@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RainPredict AI - Accurate Weather Forecasts</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons (for aesthetic icons) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .page-section {
+            display: none; /* Hidden by default */
+            animation: fade-in-up 0.6s ease-out forwards; /* Apply animation to page transitions */
+        }
+        .page-section.active {
+            display: flex; /* Show active page */
+        }
+        @keyframes fade-in-down {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fade-in-up {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fade-in {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .animate-fade-in-down { animation: fade-in-down 0.6s ease-out forwards; }
+        .animate-fade-in-up { animation: fade-in-up 0.6s ease-out forwards; }
+        .animate-fade-in { animation: fade-in 0.6s ease-out forwards; }
+
+        /* Custom scrollbar for form for better aesthetics */
+        #prediction-form {
+            max-height: 70vh; /* Limit height to enable scrolling */
+            overflow-y: auto; /* Enable vertical scrolling */
+            padding-right: 1rem; /* Space for scrollbar */
+            scrollbar-width: thin; /* Firefox */
+            scrollbar-color: #3b82f6 #e0e7ff; /* Thumb and track color */
+        }
+
+        #prediction-form::-webkit-scrollbar {
+            width: 8px;
+        }
+        #prediction-form::-webkit-scrollbar-track {
+            background: #e0e7ff; /* Light blue track */
+            border-radius: 10px;
+        }
+        #prediction-form::-webkit-scrollbar-thumb {
+            background-color: #3b82f6; /* Blue thumb */
+            border-radius: 10px;
+            border: 2px solid #e0e7ff;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-100 to-indigo-200 text-gray-800 flex flex-col">
+
+    <header class="bg-white shadow-lg p-4 md:p-6 flex flex-col md:flex-row justify-between items-center rounded-b-xl">
+        <h1 class="text-3xl md:text-4xl font-extrabold text-blue-700 mb-4 md:mb-0 animate-fade-in-down">
+            RainPredict AI
+        </h1>
+        <nav class="flex space-x-4 md:space-x-8">
+            <button id="nav-home" class="nav-item px-4 py-2 rounded-full text-lg font-semibold transition-all duration-300 ease-in-out text-gray-700 hover:bg-blue-100 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 active">
+                Home
+            </button>
+            <button id="nav-about" class="nav-item px-4 py-2 rounded-full text-lg font-semibold transition-all duration-300 ease-in-out text-gray-700 hover:bg-blue-100 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+                About Us
+            </button>
+            <button id="nav-contact" class="nav-item px-4 py-2 rounded-full text-lg font-semibold transition-all duration-300 ease-in-out text-gray-700 hover:bg-blue-100 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+                Contact
+            </button>
+        </nav>
+    </header>
+
+    <main class="flex-grow container mx-auto p-4 md:p-8 flex items-center justify-center">
+
+        <!-- Home Page Section -->
+        <section id="home-page" class="page-section active w-full max-w-6xl bg-white p-6 md:p-10 rounded-3xl shadow-2xl flex-col items-center">
+            <div class="text-center mb-8">
+                <h2 class="text-5xl font-extrabold text-blue-800 mb-4 animate-fade-in-down">
+                    Predict Tomorrow's Rain <i data-lucide="cloud-rain" class="inline-block ml-3 text-blue-500 w-12 h-12"></i>
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto animate-fade-in">
+                    Leveraging advanced machine learning to provide accurate rainfall forecasts for Australia.
+                    Simply input the current weather conditions below.
+                </p>
+            </div>
+
+            <form id="prediction-form" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full mb-8 p-4 bg-gray-50 rounded-2xl shadow-inner">
+                <!-- Input Fields -->
+                <div class="flex flex-col">
+                    <label for="Location" class="text-sm font-semibold text-gray-700 mb-1 flex items-center"><i data-lucide="map-pin" class="mr-2 text-blue-500 w-5 h-5"></i>Location</label>
+                    <select id="Location" name="Location" class="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 bg-white shadow-sm">
+                        <!-- Options will be populated by JS -->
+                    </select>
+                </div>
+                <div class="flex flex-col">
+                    <label for="MinTemp" class="text-sm font-semibold text-gray-700 mb-1 flex items-center"><i data-lucide="thermometer" class="mr-2 text-blue-500 w-5 h-5"></i>Min Temp (°C)</label>
+                    <input type="number" id="MinTemp" name="MinTemp" value="10.0" step="0.1" min="-10" max="40" class="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-sm">
+                </div>
+                <div class="flex flex-col">
+                    <label for="MaxTemp" class="text-sm font-semibold text-gray-700 mb-1 flex items-center"><i data-lucide="thermometer" class="mr-2 text-blue-500 w-5 h-5"></i>Max Temp (°C)</label>
+                    <input type="number" id="MaxTemp" name="MaxTemp" value="25.0" step="0.1" min="0" max="50" class="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-sm">
+                </div>
+                <div class="flex flex-col">
+                    <label for="Rainfall" class="text-sm font-semibold text-gray-700 mb-1 flex items-center"><i data-lucide="droplet" class="mr-2 text-blue-500 w-5 h-5"></i>Rainfall (mm)</label>
+                    <input type="number" id="Rainfall" name="Rainfall" value="0.0" step="0.1" min="0" max="300" class="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-sm">
+                </div>
+                <div class="flex flex-col">
+                    <label for="Evaporation" class="text-sm font-semibold text-gray-700 mb-1 flex items-center"><i data-lucide="sun" class="mr-2 text-blue-500 w-5 h-5"></i>Evaporation (mm)</label>
+                    <input type="number" id="Evaporation" name="Evaporation" value="5.0" step="0.1" min="0" max="20" class="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-sm">
+                </div>
+                <div class="flex flex-col">
+                    <label for="Sunshine" class="text-sm font-semibold text-gray-700 mb-1 flex items-center"><i data-lucide="sun" class="mr-2 text-blue-500 w-5 h-5"></i>Sunshine (hours)</label>
+                    <input type="number" id="Sunshine" name="Sunshine" value="8.0" step="0.1" min="0" max="15" class="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-sm">
+                </div>
+                <div class="flex flex-col">
+                    <label for="WindGustDir" class="text-sm font-semibold text-gray-700 mb-1 flex items-center"><i data-lucide="compass" class="mr-2 text-blue-500 w-5 h-5"></i>Wind Gust Dir</label>
+                    <select id="WindGustDir" name="WindGustDir" class="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 bg-white shadow-sm">
+                        <!-- Options will be populated by JS -->
+                    </select>
+                </div>
+                <div class="flex flex-col">
+                    <label for="WindGustSpeed" class="text-sm font-semibold text-gray-700 mb-1 flex items-center"><i data-lucide="wind" class="mr-2 text-blue-500 w-5 h-5"></i>Wind Gust Speed (km/h)</label>
+                    <input type="number" id="WindGustSpeed" name="WindGustSpeed" value="40.0" step="1" min="0" max="150" class="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-sm">
+                </div>
+                <div class="flex flex-col">
+                    <label for="WindDir9am" class="text-sm font-semibold text-gray-700 mb-1 flex items-center"><i data-lucide="compass" class="mr-2 text-blue-500 w-5 h-5"></i>Wind Dir 9am</label>
+                    <select id="WindDir9am" name="WindDir9am" class="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 bg-white shadow-sm">
+                        <!-- Options will be populated by JS -->
+                    </select>
+                </div>
+                <div class="flex flex-col">
+                    <label for="WindDir3pm" class="text-sm font-semibold text-gray-700 mb-1 flex items-center"><i data-lucide="compass" class="mr-2 text-blue-500 w-5 h-5"></i>Wind Dir 3pm</label>
+                    <select id="WindDir3pm" name="WindDir3pm" class="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 bg-white shadow-sm">
+                        <!-- Options will be populated by JS -->
+                    </select>
+                </div>
+                <div class="flex flex-col">
+                    <label for="WindSpeed9am" class="text-sm font-semibold text-gray-700 mb-1 flex items-center"><i data-lucide="wind" class="mr-2 text-blue-500 w-5 h-5"></i>Wind Speed 9am (km/h)</label>
+                    <input type="number" id="WindSpeed9am" name="WindSpeed9am" value="20.0" step="1" min="0" max="100" class="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-sm">
+                </div>
+                <div class="flex flex-col">
+                    <label for="WindSpeed3pm" class="text-sm font-semibold text-gray-700 mb-1 flex items-center"><i data-lucide="wind" class="mr-2 text-blue-500 w-5 h-5"></i>Wind Speed 3pm (km/h)</label>
+                    <input type="number" id="WindSpeed3pm" name="WindSpeed3pm" value="24.0" step="1" min="0" max="100" class="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-sm">
+                </div>
+                <div class="flex flex-col">
+                    <label for="Humidity9am" class="text-sm font-semibold text-gray-700 mb-1 flex items-center"><i data-lucide="droplet" class="mr-2 text-blue-500 w-5 h-5"></i>Humidity 9am (%)</label>
+                    <input type="number" id="Humidity9am" name="Humidity9am" value="71.0" step="1" min="0" max="100" class="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-sm">
+                </div>
+                <div class="flex flex-col">
+                    <label for="Humidity3pm" class="text-sm font-semibold text-gray-700 mb-1 flex items-center"><i data-lucide="droplet" class="mr-2 text-blue-500 w-5 h-5"></i>Humidity 3pm (%)</label>
+                    <input type="number" id="Humidity3pm" name="Humidity3pm" value="22.0" step="1" min="0" max="100" class="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-sm">
+                </div>
+                <div class="flex flex-col">
+                    <label for="Pressure9am" class="text-sm font-semibold text-gray-700 mb-1 flex items-center"><i data-lucide="gauge" class="mr-2 text-blue-500 w-5 h-5"></i>Pressure 9am (hPa)</label>
+                    <input type="number" id="Pressure9am" name="Pressure9am" value="1007.7" step="0.1" min="980" max="1040" class="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-sm">
+                </div>
+                <div class="flex flex-col">
+                    <label for="Pressure3pm" class="text-sm font-semibold text-gray-700 mb-1 flex items-center"><i data-lucide="gauge" class="mr-2 text-blue-500 w-5 h-5"></i>Pressure 3pm (hPa)</label>
+                    <input type="number" id="Pressure3pm" name="Pressure3pm" value="1007.1" step="0.1" min="970" max="1030" class="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-sm">
+                </div>
+                <div class="flex flex-col">
+                    <label for="Cloud9am" class="text-sm font-semibold text-gray-700 mb-1 flex items-center"><i data-lucide="cloud" class="mr-2 text-blue-500 w-5 h-5"></i>Cloud 9am (eighths)</label>
+                    <input type="number" id="Cloud9am" name="Cloud9am" value="8.0" step="1" min="0" max="8" class="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-sm">
+                </div>
+                <div class="flex flex-col">
+                    <label for="Cloud3pm" class="text-sm font-semibold text-gray-700 mb-1 flex items-center"><i data-lucide="cloud" class="mr-2 text-blue-500 w-5 h-5"></i>Cloud 3pm (eighths)</label>
+                    <input type="number" id="Cloud3pm" name="Cloud3pm" value="4.0" step="1" min="0" max="8" class="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-sm">
+                </div>
+                <div class="flex flex-col">
+                    <label for="Temp9am" class="text-sm font-semibold text-gray-700 mb-1 flex items-center"><i data-lucide="thermometer" class="mr-2 text-blue-500 w-5 h-5"></i>Temp 9am (°C)</label>
+                    <input type="number" id="Temp9am" name="Temp9am" value="16.9" step="0.1" min="-5" max="45" class="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-sm">
+                </div>
+                <div class="flex flex-col">
+                    <label for="Temp3pm" class="text-sm font-semibold text-gray-700 mb-1 flex items-center"><i data-lucide="thermometer" class="mr-2 text-blue-500 w-5 h-5"></i>Temp 3pm (°C)</label>
+                    <input type="number" id="Temp3pm" name="Temp3pm" value="21.8" step="0.1" min="0" max="50" class="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-sm">
+                </div>
+                <div class="flex flex-col">
+                    <label for="RainToday" class="text-sm font-semibold text-gray-700 mb-1 flex items-center"><i data-lucide="cloud-rain" class="mr-2 text-blue-500 w-5 h-5"></i>Rain Today</label>
+                    <select id="RainToday" name="RainToday" class="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 bg-white shadow-sm">
+                        <option value="No">No</option>
+                        <option value="Yes">Yes</option>
+                    </select>
+                </div>
+            </form>
+
+            <button id="predict-button" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-10 rounded-full text-xl shadow-lg transform transition-all duration-300 ease-in-out hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 focus:ring-blue-300 flex items-center justify-center">
+                <i data-lucide="droplet" class="mr-3 w-6 h-6"></i> Predict Rain
+            </button>
+
+            <div id="loading-indicator" class="mt-6 text-blue-600 font-semibold hidden animate-fade-in-down">
+                <i data-lucide="loader-2" class="animate-spin mr-3 w-6 h-6 inline-block"></i> Predicting...
+            </div>
+
+            <div id="error-message" class="mt-6 p-4 bg-red-100 text-red-700 rounded-lg shadow-md hidden animate-fade-in-down">
+                <p class="font-semibold">Error:</p>
+                <p id="error-text"></p>
+            </div>
+
+            <div id="prediction-result" class="mt-8 w-full max-w-md bg-gradient-to-r from-blue-500 to-purple-600 text-white p-8 rounded-2xl shadow-xl text-center hidden animate-fade-in-up">
+                <h3 class="text-3xl font-bold mb-4 flex items-center justify-center" id="prediction-text"></h3>
+                <p class="text-5xl font-extrabold mb-2" id="probability-text"></p>
+                <p class="text-lg opacity-90" id="probability-label"></p>
+            </div>
+        </section>
+
+        <!-- About Us Section -->
+        <section id="about-page" class="page-section w-full max-w-3xl bg-white p-6 md:p-10 rounded-3xl shadow-2xl flex-col items-center text-center">
+            <h2 class="text-4xl font-extrabold text-blue-800 mb-6 flex items-center">
+                About This Project <i data-lucide="info" class="ml-3 text-blue-500 w-9 h-9"></i>
+            </h2>
+            <p class="text-lg text-gray-700 mb-6 leading-relaxed">
+                This project, <span class="font-bold text-blue-700">RainPredict AI</span>, is a sophisticated web application designed to forecast daily rainfall. It leverages a robust logistic regression model trained on a comprehensive dataset from the Meteorological Department of Australia, spanning over 10 years of historical weather observations.
+            </p>
+            <p class="text-lg text-gray-700 mb-8 leading-relaxed">
+                My goal was to create an intuitive and visually appealing platform that not only provides accurate predictions but also offers transparency by displaying the probability of the outcome. The frontend is built with modern web technologies, focusing on a seamless user experience, responsiveness, and engaging animations to present complex data in an understandable way.
+            </p>
+            <div class="mb-8">
+                <h3 class="text-2xl font-bold text-blue-700 mb-4">Connect with me!</h3>
+                <a href="https://www.linkedin.com/in/sarthak-bhardwaj-701452308/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center bg-blue-700 hover:bg-blue-800 text-white font-bold py-3 px-6 rounded-full text-lg shadow-md transition-all duration-300 ease-in-out hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 focus:ring-blue-300">
+                    <i data-lucide="linkedin" class="mr-3 w-6 h-6"></i> My LinkedIn Profile
+                </a>
+            </div>
+            <p class="text-md text-gray-500">
+                This project was developed with passion and a commitment to applying machine learning for practical, everyday insights.
+            </p>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact-page" class="page-section w-full max-w-2xl bg-white p-6 md:p-10 rounded-3xl shadow-2xl flex-col items-center text-center">
+            <h2 class="text-4xl font-extrabold text-blue-800 mb-6 flex items-center">
+                Get in Touch <i data-lucide="mail" class="ml-3 text-blue-500 w-9 h-9"></i>
+            </h2>
+            <p class="text-lg text-gray-700 mb-8 leading-relaxed">
+                Have questions about the project, suggestions, or just want to say hello? Feel free to reach out!
+            </p>
+            <div class="w-full">
+                <div class="mb-6 text-left">
+                    <label for="contact-name" class="block text-gray-700 text-sm font-bold mb-2">Name</label>
+                    <input type="text" id="contact-name" class="shadow appearance-none border rounded-xl w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200" placeholder="Your Name">
+                </div>
+                <div class="mb-6 text-left">
+                    <label for="contact-email" class="block text-gray-700 text-sm font-bold mb-2">Email</label>
+                    <input type="email" id="contact-email" class="shadow appearance-none border rounded-xl w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200" placeholder="your.email@example.com">
+                </div>
+                <div class="mb-8 text-left">
+                    <label for="contact-message" class="block text-gray-700 text-sm font-bold mb-2">Message</label>
+                    <textarea id="contact-message" rows="5" class="shadow appearance-none border rounded-xl w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200" placeholder="Your message here..."></textarea>
+                </div>
+                <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full text-lg shadow-lg transform transition-all duration-300 ease-in-out hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 focus:ring-blue-300">
+                    Send Message
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white p-4 md:p-6 text-center rounded-t-xl mt-8">
+        <p>&copy; 2025 RainPredict AI. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Lucide Icons initialization
+        lucide.createIcons();
+
+        // Navigation Logic
+        const navButtons = document.querySelectorAll('.nav-item');
+        const pageSections = document.querySelectorAll('.page-section');
+
+        navButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all buttons and sections
+                navButtons.forEach(btn => btn.classList.remove('active', 'bg-blue-600', 'text-white', 'shadow-md'));
+                pageSections.forEach(section => section.classList.remove('active'));
+
+                // Add active class to clicked button
+                button.classList.add('active', 'bg-blue-600', 'text-white', 'shadow-md');
+
+                // Show corresponding section
+                const targetPageId = button.id.replace('nav-', '') + '-page';
+                document.getElementById(targetPageId).classList.add('active');
+            });
+        });
+
+        // Initialize Home page as active
+        document.getElementById('nav-home').classList.add('active', 'bg-blue-600', 'text-white', 'shadow-md');
+        document.getElementById('home-page').classList.add('active');
+
+
+        // Populate dropdowns
+        const allLocations = [
+            "Albury", "BadgerysCreek", "Cobar", "CoffsHarbour", "Moree", "NorfolkIsland",
+            "Penrith", "Richmond", "Sydney", "SydneyAirport", "WaggaWagga", "Williamtown",
+            "Wollongong", "Canberra", "Tuggeranong", "MountGinini", "Ballarat", "Bendigo",
+            "Sale", "MelbourneAirport", "Melbourne", "Mildura", "Nhil", "Portland",
+            "Watsonia", "Dartmoor", "Brisbane", "Cairns", "GoldCoast", "Townsville",
+            "Adelaide", "MountGambier", "Nuriootpa", "Woomera", "Albany", "Baccalieu",
+            "PerthAirport", "Perth", "SalmonGums", "Walpole", "Hobart", "Launceston",
+            "AliceSprings", "Darwin", "Katherine", "Uluru"
+        ];
+
+        const windDirections = [
+            "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
+            "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"
+        ];
+
+        function populateSelect(selectId, options, defaultValue) {
+            const selectElement = document.getElementById(selectId);
+            options.forEach(optionText => {
+                const option = document.createElement('option');
+                option.value = optionText;
+                option.textContent = optionText;
+                selectElement.appendChild(option);
+            });
+            if (defaultValue) {
+                selectElement.value = defaultValue;
+            }
+        }
+
+        populateSelect('Location', allLocations, 'Albury');
+        populateSelect('WindGustDir', windDirections, 'W');
+        populateSelect('WindDir9am', windDirections, 'W');
+        populateSelect('WindDir3pm', windDirections, 'WNW');
+
+        // Prediction Logic
+        const predictionForm = document.getElementById('prediction-form');
+        const predictButton = document.getElementById('predict-button');
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const errorMessage = document.getElementById('error-message');
+        const errorText = document.getElementById('error-text');
+        const predictionResultDiv = document.getElementById('prediction-result');
+        const predictionText = document.getElementById('prediction-text');
+        const probabilityText = document.getElementById('probability-text');
+        const probabilityLabel = document.getElementById('probability-label');
+
+        predictButton.addEventListener('click', async () => {
+            loadingIndicator.classList.remove('hidden');
+            errorMessage.classList.add('hidden');
+            predictionResultDiv.classList.add('hidden');
+
+            const formData = {};
+            // Collect data from all form inputs
+            const inputs = predictionForm.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                if (input.type === 'number') {
+                    // Handle potential empty string for number inputs
+                    formData[input.name] = input.value === '' ? null : parseFloat(input.value);
+                } else {
+                    formData[input.name] = input.value;
+                }
+            });
+
+            console.log("Sending data:", formData);
+
+            try {
+                const response = await fetch('http://localhost:5000/predict', { // IMPORTANT: Ensure Flask backend is running on this URL
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData),
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Something went wrong with the prediction.');
+                }
+
+                const result = await response.json();
+                console.log("Prediction result:", result);
+
+                let willRain = result.prediction === 'Yes';
+                let probability = willRain ? result.probability_yes_rain : result.probability_no_rain;
+
+                if (willRain) {
+                    predictionText.innerHTML = `<i data-lucide="cloud-rain" class="mr-3 text-white w-9 h-9"></i> It will rain tomorrow!`;
+                    predictionResultDiv.classList.remove('from-blue-500', 'to-purple-600');
+                    predictionResultDiv.classList.add('from-blue-700', 'to-indigo-800'); // Darker blue for rain
+                } else {
+                    predictionText.innerHTML = `<i data-lucide="sun" class="mr-3 text-yellow-300 w-9 h-9"></i> No rain expected tomorrow.`;
+                    predictionResultDiv.classList.remove('from-blue-700', 'to-indigo-800');
+                    predictionResultDiv.classList.add('from-blue-500', 'to-purple-600'); // Lighter blue for no rain
+                }
+                probabilityText.textContent = `${probability}%`;
+                probabilityLabel.textContent = `Probability of ${willRain ? 'rain' : 'no rain'}`;
+                
+                lucide.createIcons(); // Re-render icons after updating innerHTML
+                predictionResultDiv.classList.remove('hidden');
+
+            } catch (error) {
+                console.error("Prediction failed:", error);
+                errorText.textContent = `Prediction failed: ${error.message}`;
+                errorMessage.classList.remove('hidden');
+            } finally {
+                loadingIndicator.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
